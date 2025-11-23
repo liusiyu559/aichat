@@ -101,27 +101,30 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
 
   return (
     <div 
-      className="w-full h-full relative bg-cover bg-center flex flex-col justify-between overflow-hidden transition-all duration-1000"
+      className="w-full h-full relative bg-cover bg-center flex flex-col justify-between overflow-hidden transition-all duration-1000 select-none"
       style={{ backgroundImage: `url(${background})` }}
+      onDoubleClick={() => setHideUI(!hideUI)}
     >
         <div className="absolute inset-0 bg-gradient-to-b from-oil-sun/5 to-oil-water/5 mix-blend-overlay pointer-events-none"></div>
 
         {/* Top Controls */}
-        <div className="relative z-30 p-4 flex justify-between items-start text-white">
-            <button 
-                onClick={onBack} 
-                className={`bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition ${hideUI ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
-            >
-                <ArrowLeft size={24} className="text-white" />
-            </button>
-            
-            <button 
-                onClick={() => setHideUI(!hideUI)}
-                className="bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition"
-            >
-                {hideUI ? <EyeOff size={24} /> : <Eye size={24} />}
-            </button>
-        </div>
+        {!hideUI && (
+            <div className="relative z-30 p-4 flex justify-between items-start text-white">
+                <button 
+                    onClick={onBack} 
+                    className="bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition"
+                >
+                    <ArrowLeft size={24} className="text-white" />
+                </button>
+                
+                <button 
+                    onClick={() => setHideUI(!hideUI)}
+                    className="bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition"
+                >
+                    {hideUI ? <EyeOff size={24} /> : <Eye size={24} />}
+                </button>
+            </div>
+        )}
 
         {/* Character Standee */}
         <div className="absolute inset-x-0 bottom-0 top-0 flex justify-center items-end pointer-events-none z-10">

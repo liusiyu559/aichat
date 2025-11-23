@@ -71,6 +71,9 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
   const [showMemory, setShowMemory] = useState(false);
   const [editedMemory, setEditedMemory] = useState<string>('');
 
+  // UI Toggle (Double Click)
+  const [isUIHidden, setIsUIHidden] = useState(false);
+
   // Post Moment State
   const [showPostMoment, setShowPostMoment] = useState(false);
   const [postText, setPostText] = useState('');
@@ -287,7 +290,10 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
   const renderChatRoom = () => {
     if (!activeChar) return null;
     return (
-        <div className="flex flex-col h-full bg-wx-bg relative">
+        <div 
+            className="flex flex-col h-full bg-wx-bg relative select-none"
+            onDoubleClick={() => setIsUIHidden(!isUIHidden)}
+        >
             <div 
                 className="absolute inset-0 bg-cover bg-center opacity-70 pointer-events-none" 
                 style={{ 
@@ -299,54 +305,56 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
             ></div>
 
             {/* Header */}
-            <div className="h-16 bg-gradient-to-r from-oil-sun via-oil-sunset to-oil-sunset border-b border-white/20 flex items-center justify-between px-3 shadow-md z-10 pt-2 relative">
-                <div className="flex items-center gap-1">
-                    <button onClick={() => setView('chatList')} className="p-2 hover:bg-white/10 rounded-full transition">
-                        <ChevronLeft size={24} className="text-white" />
-                    </button>
-                    <span className="font-serif font-bold text-lg text-white drop-shadow-sm">{activeChar.name}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                    {/* Story Mode Button */}
-                    <button onClick={onEnterActivity} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white" title="进入剧情模式">
-                        <MapPin size={20} />
-                    </button>
-                    <button onClick={() => setShowChatSettings(!showChatSettings)} className="p-2 hover:bg-white/10 rounded-full">
-                        <MoreHorizontal size={24} className="text-white" />
-                    </button>
-                </div>
-
-                {showChatSettings && (
-                    <div className="absolute top-14 right-2 bg-white rounded-lg shadow-xl w-40 py-2 z-50 border border-gray-100">
-                        <button onClick={() => {onEditCharacter(activeChar.id); setShowChatSettings(false);}} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
-                            <Settings size={16}/> 设置人物
+            {!isUIHidden && (
+                <div className="h-16 bg-gradient-to-r from-oil-sun via-oil-sunset to-oil-sunset border-b border-white/20 flex items-center justify-between px-3 shadow-md z-10 pt-2 relative">
+                    <div className="flex items-center gap-1">
+                        <button onClick={() => setView('chatList')} className="p-2 hover:bg-white/10 rounded-full transition">
+                            <ChevronLeft size={24} className="text-white" />
                         </button>
-                        <button onClick={() => {
-                            setEditedMemory(activeChar.memory ? activeChar.memory.join('\n') : '');
-                            setShowMemory(true); 
-                            setShowChatSettings(false);
-                        }} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
-                            <FileText size={16}/> 编辑记忆
-                        </button>
-                        <button onClick={() => bgInputRef.current?.click()} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
-                            <ImagePlus size={16}/> 设置背景
-                        </button>
-                        <input 
-                            type="file" 
-                            ref={bgInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                                if(e.target.files?.[0]) {
-                                    onUpdateChatBackground(activeChar.id, e.target.files[0]);
-                                    setShowChatSettings(false);
-                                }
-                            }}
-                        />
+                        <span className="font-serif font-bold text-lg text-white drop-shadow-sm">{activeChar.name}</span>
                     </div>
-                )}
-            </div>
+                    
+                    <div className="flex items-center gap-2">
+                        {/* Story Mode Button */}
+                        <button onClick={onEnterActivity} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white" title="进入剧情模式">
+                            <MapPin size={20} />
+                        </button>
+                        <button onClick={() => setShowChatSettings(!showChatSettings)} className="p-2 hover:bg-white/10 rounded-full">
+                            <MoreHorizontal size={24} className="text-white" />
+                        </button>
+                    </div>
+
+                    {showChatSettings && (
+                        <div className="absolute top-14 right-2 bg-white rounded-lg shadow-xl w-40 py-2 z-50 border border-gray-100">
+                            <button onClick={() => {onEditCharacter(activeChar.id); setShowChatSettings(false);}} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
+                                <Settings size={16}/> 设置人物
+                            </button>
+                            <button onClick={() => {
+                                setEditedMemory(activeChar.memory ? activeChar.memory.join('\n') : '');
+                                setShowMemory(true); 
+                                setShowChatSettings(false);
+                            }} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
+                                <FileText size={16}/> 编辑记忆
+                            </button>
+                            <button onClick={() => bgInputRef.current?.click()} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2">
+                                <ImagePlus size={16}/> 设置背景
+                            </button>
+                            <input 
+                                type="file" 
+                                ref={bgInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if(e.target.files?.[0]) {
+                                        onUpdateChatBackground(activeChar.id, e.target.files[0]);
+                                        setShowChatSettings(false);
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
 
             {showMemory && (
                 <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -479,99 +487,101 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
             </div>
 
             {/* Input Area */}
-            <div className="bg-gray-100 border-t border-gray-200 p-2 pb-4 z-10">
-                <div className="flex items-center space-x-2">
-                    <button 
-                        onClick={() => {
-                            setCallDuration(0);
-                            setIsCalling(true);
-                        }}
-                        className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-gray-600 cursor-pointer hover:bg-gray-200 hover:text-green-600 transition"
-                    >
-                        <Phone size={18} />
-                    </button>
-                    <input 
-                        type="text" 
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        className="flex-1 bg-white h-9 rounded px-3 text-sm border-none outline-none focus:ring-1 focus:ring-green-500"
-                    />
-                    <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
-                         <Smile size={26} className="text-gray-600 cursor-pointer hover:text-oil-sunset" />
-                    </button>
-                    <button onClick={() => setShowPlusMenu(!showPlusMenu)}>
-                         <Plus size={26} className="text-gray-600 p-0.5 border-2 border-gray-600 rounded-full hover:border-oil-sunset hover:text-oil-sunset" />
-                    </button>
-                    <button onClick={handleSend} className="bg-oil-meadow text-white px-3 py-1 rounded text-sm font-bold shadow-sm hover:bg-oil-greenDark">
-                        发送
-                    </button>
+            {!isUIHidden && (
+                <div className="bg-gray-100 border-t border-gray-200 p-2 pb-4 z-10">
+                    <div className="flex items-center space-x-2">
+                        <button 
+                            onClick={() => {
+                                setCallDuration(0);
+                                setIsCalling(true);
+                            }}
+                            className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-gray-600 cursor-pointer hover:bg-gray-200 hover:text-green-600 transition"
+                        >
+                            <Phone size={18} />
+                        </button>
+                        <input 
+                            type="text" 
+                            value={inputText}
+                            onChange={(e) => setInputText(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            className="flex-1 bg-white h-9 rounded px-3 text-sm border-none outline-none focus:ring-1 focus:ring-green-500"
+                        />
+                        <button onClick={() => setShowStickerPanel(!showStickerPanel)}>
+                            <Smile size={26} className="text-gray-600 cursor-pointer hover:text-oil-sunset" />
+                        </button>
+                        <button onClick={() => setShowPlusMenu(!showPlusMenu)}>
+                            <Plus size={26} className="text-gray-600 p-0.5 border-2 border-gray-600 rounded-full hover:border-oil-sunset hover:text-oil-sunset" />
+                        </button>
+                        <button onClick={handleSend} className="bg-oil-meadow text-white px-3 py-1 rounded text-sm font-bold shadow-sm hover:bg-oil-greenDark">
+                            发送
+                        </button>
+                    </div>
+
+                    {/* Sticker Panel */}
+                    {showStickerPanel && (
+                        <div className="h-40 bg-gray-50 border-t mt-2 p-2 overflow-y-auto grid grid-cols-4 gap-2">
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded hover:bg-gray-100 cursor-pointer" 
+                                onClick={() => stickerInputRef.current?.click()}>
+                                <Plus size={20} className="text-gray-400" />
+                                <span className="text-[10px] text-gray-400">上传表情</span>
+                                <input 
+                                    type="file" 
+                                    ref={stickerInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if(e.target.files?.[0]) onAddSticker(e.target.files[0]);
+                                    }}
+                                />
+                            </div>
+                            {stickers.map(s => (
+                                <img 
+                                    key={s.id} 
+                                    src={s.url} 
+                                    alt="sticker"
+                                    className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 border border-gray-200 bg-white" 
+                                    onClick={() => {
+                                        onSendMessage(s.url, 'sticker');
+                                        setShowStickerPanel(false);
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Plus Menu */}
+                    {showPlusMenu && (
+                        <div className="grid grid-cols-4 gap-4 p-4 mt-2 border-t border-gray-200">
+                            <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => photoInputRef.current?.click()}>
+                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
+                                    <ImageIcon size={24} />
+                                </div>
+                                <span className="text-xs">相册</span>
+                                <input 
+                                    type="file" 
+                                    ref={photoInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if(e.target.files?.[0]) {
+                                            onUploadPhoto(e.target.files[0]);
+                                            setShowPlusMenu(false);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => {
+                                setShowTransferModal(true);
+                            }}>
+                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
+                                    <Wallet size={24} />
+                                </div>
+                                <span className="text-xs">转账</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {/* Sticker Panel */}
-                {showStickerPanel && (
-                    <div className="h-40 bg-gray-50 border-t mt-2 p-2 overflow-y-auto grid grid-cols-4 gap-2">
-                        <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded hover:bg-gray-100 cursor-pointer" 
-                             onClick={() => stickerInputRef.current?.click()}>
-                            <Plus size={20} className="text-gray-400" />
-                            <span className="text-[10px] text-gray-400">上传表情</span>
-                            <input 
-                                type="file" 
-                                ref={stickerInputRef}
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    if(e.target.files?.[0]) onAddSticker(e.target.files[0]);
-                                }}
-                            />
-                        </div>
-                        {stickers.map(s => (
-                            <img 
-                                key={s.id} 
-                                src={s.url} 
-                                alt="sticker"
-                                className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 border border-gray-200 bg-white" 
-                                onClick={() => {
-                                    onSendMessage(s.url, 'sticker');
-                                    setShowStickerPanel(false);
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {/* Plus Menu */}
-                {showPlusMenu && (
-                    <div className="grid grid-cols-4 gap-4 p-4 mt-2 border-t border-gray-200">
-                        <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => photoInputRef.current?.click()}>
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
-                                <ImageIcon size={24} />
-                            </div>
-                            <span className="text-xs">相册</span>
-                            <input 
-                                type="file" 
-                                ref={photoInputRef}
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    if(e.target.files?.[0]) {
-                                        onUploadPhoto(e.target.files[0]);
-                                        setShowPlusMenu(false);
-                                    }
-                                }}
-                            />
-                        </div>
-                         <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => {
-                            setShowTransferModal(true);
-                        }}>
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
-                                <Wallet size={24} />
-                            </div>
-                            <span className="text-xs">转账</span>
-                        </div>
-                    </div>
-                )}
-            </div>
+            )}
             
             {showTransferModal && (
                 <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">

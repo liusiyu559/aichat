@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Smartphone, MapPin, X } from 'lucide-react';
 import { AppMode, Character, Message, Moment, INITIAL_CHARACTERS, UserProfile, INITIAL_USER_PROFILE, Sticker, BackgroundItem, INITIAL_BACKGROUNDS, INITIAL_STICKERS } from './types';
 import PhoneInterface from './components/PhoneInterface';
@@ -8,34 +8,78 @@ import { generateChatResponse, generateMoment, generateCommentReply, summarizeMe
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('dashboard');
-  const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
+  
+  // -- State with LocalStorage Persistence --
+
+  const [characters, setCharacters] = useState<Character[]>(() => {
+      const saved = localStorage.getItem('AISoulMate_Characters');
+      return saved ? JSON.parse(saved) : INITIAL_CHARACTERS;
+  });
+
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+      const saved = localStorage.getItem('AISoulMate_UserProfile');
+      return saved ? JSON.parse(saved) : INITIAL_USER_PROFILE;
+  });
+
+  const [backgroundLibrary, setBackgroundLibrary] = useState<BackgroundItem[]>(() => {
+      const saved = localStorage.getItem('AISoulMate_Backgrounds');
+      return saved ? JSON.parse(saved) : INITIAL_BACKGROUNDS;
+  });
+
+  const [stickers, setStickers] = useState<Sticker[]>(() => {
+      const saved = localStorage.getItem('AISoulMate_Stickers');
+      return saved ? JSON.parse(saved) : INITIAL_STICKERS;
+  });
+
+  const [chatHistory, setChatHistory] = useState<Record<string, Message[]>>(() => {
+      const saved = localStorage.getItem('AISoulMate_ChatHistory');
+      return saved ? JSON.parse(saved) : {};
+  });
+
+  const [moments, setMoments] = useState<Moment[]>(() => {
+      const saved = localStorage.getItem('AISoulMate_Moments');
+      return saved ? JSON.parse(saved) : [
+        {
+          id: 'init-1',
+          authorId: '1',
+          content: '落日的余晖总是让人想起那幅油画...',
+          images: ['https://picsum.photos/seed/art/300/300'],
+          timestamp: Date.now() - 1000000,
+          likes: ['我'],
+          comments: []
+        }
+      ];
+  });
+
   const [activeCharId, setActiveCharId] = useState<string | null>(null);
   const [editingCharId, setEditingCharId] = useState<string | null>(null);
-  
-  // User Profile State
-  const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_USER_PROFILE);
-  
-  // Custom Background Library State
-  const [backgroundLibrary, setBackgroundLibrary] = useState<BackgroundItem[]>(INITIAL_BACKGROUNDS);
-  
-  // Stickers State
-  const [stickers, setStickers] = useState<Sticker[]>(INITIAL_STICKERS);
 
-  // Shared Chat History keyed by Character ID
-  const [chatHistory, setChatHistory] = useState<Record<string, Message[]>>({});
-  
-  // Moments
-  const [moments, setMoments] = useState<Moment[]>([
-    {
-      id: 'init-1',
-      authorId: '1',
-      content: '落日的余晖总是让人想起那幅油画...',
-      images: ['https://picsum.photos/seed/art/300/300'],
-      timestamp: Date.now() - 1000000,
-      likes: ['我'],
-      comments: []
-    }
-  ]);
+  // -- Persistence Effects --
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_Characters', JSON.stringify(characters));
+  }, [characters]);
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_UserProfile', JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_Backgrounds', JSON.stringify(backgroundLibrary));
+  }, [backgroundLibrary]);
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_Stickers', JSON.stringify(stickers));
+  }, [stickers]);
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_ChatHistory', JSON.stringify(chatHistory));
+  }, [chatHistory]);
+
+  useEffect(() => {
+      localStorage.setItem('AISoulMate_Moments', JSON.stringify(moments));
+  }, [moments]);
+
 
   // Helper for file upload to Base64
   const handleFileUpload = (file: File): Promise<string> => {
