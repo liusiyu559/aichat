@@ -1,37 +1,64 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Feather } from 'lucide-react';
-import { Character, Message } from '../types';
-import { getBackgroundUrl } from '../services/geminiService';
+import { ArrowLeft, Feather, Eye, EyeOff, MoreVertical, Edit3, Trash2, Repeat } from 'lucide-react';
+import { Character, Message, BackgroundItem } from '../types';
+import { analyzeContextForScene, getBackgroundUrl } from '../services/geminiService';
 
 interface ActivityInterfaceProps {
   character: Character;
   chatHistory: Message[];
   onSendMessage: (text: string) => void;
   onBack: () => void;
+  backgroundLibrary: BackgroundItem[];
+  onDeleteMessage: (msgId: string) => void; // New
+  onEditMessage: (msgId: string, newText: string) => void; // New
+  onRegenerateMessage: (msgId: string) => void; // New
 }
 
 const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
   character,
   chatHistory,
   onSendMessage,
-  onBack
+  onBack,
+  backgroundLibrary,
+  onDeleteMessage,
+  onEditMessage,
+  onRegenerateMessage
 }) => {
   const [inputText, setInputText] = useState('');
   const [background, setBackground] = useState('');
+  const [hideUI, setHideUI] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Message Actions State
+  const [hoverMsgId, setHoverMsgId] = useState<string | null>(null);
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [editMsgText, setEditMsgText] = useState('');
+
+  // Analyze context to update background
   useEffect(() => {
-    // Use bright, sunny scenic terms (keeping seeds English for variety, but UI is Chinese)
-    const places = ['sunny beach cafe', 'vibrant flower garden', 'venice canal sunset', 'royal gold palace'];
-    const place = places[Math.floor(Math.random() * places.length)];
-    setBackground(getBackgroundUrl(place));
-  }, []);
+     const updateBackground = async () => {
+         const msgs = chatHistory.filter(m => m.scene === 'activity');
+         if ((msgs.length > 0 && msgs.length % 5 === 0) || !background) { 
+            const keyword = await analyzeContextForScene(msgs, backgroundLibrary);
+            const customBg = backgroundLibrary.find(b => b.name === keyword);
+            if (customBg) {
+                setBackground(customBg.url);
+            } else {
+                const fallback = backgroundLibrary[0]?.url || getBackgroundUrl(keyword);
+                setBackground(fallback);
+            }
+         }
+     }
+     updateBackground();
+  }, [chatHistory, background, backgroundLibrary]);
+
+  const activityMessages = chatHistory.filter(m => m.scene === 'activity');
 
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [chatHistory]);
+  }, [activityMessages, hideUI]);
 
   const handleSend = () => {
     if (!inputText.trim()) return;
@@ -39,92 +66,181 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
     setInputText('');
   };
 
+  const renderFormattedText = (text: string) => {
+      const lines = text.split('\n');
+      return lines.map((line, lineIdx) => {
+          const trimmed = line.trim();
+          if (!trimmed) return null;
+          
+          if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+              return <p key={lineIdx} className="text-[#4caf50] font-medium my-1 bg-white/90 px-2 py-1 rounded shadow-sm inline-block font-body">{trimmed}</p>
+          } 
+          else if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+              return <p key={lineIdx} className="text-[#ff9800] italic my-1 font-serif text-sm">{trimmed}</p>
+          } 
+          else if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+               return <p key={lineIdx} className="text-black font-bold text-base my-2 font-serif tracking-wide">{trimmed}</p>
+          }
+          else {
+              if (trimmed.includes('"')) {
+                  const parts = trimmed.split('"');
+                  return (
+                      <p key={lineIdx} className="text-black mb-1 font-serif">
+                          {parts.map((part, i) => (
+                              <span key={i} className={i % 2 !== 0 ? "font-bold" : ""}>
+                                  {i % 2 !== 0 ? `"${part}"` : part}
+                              </span>
+                          ))}
+                      </p>
+                  )
+              }
+              return <p key={lineIdx} className="text-gray-900 mb-1 font-serif">{trimmed}</p>
+          }
+      });
+  };
+
+  const lastAiMessage = activityMessages.filter(m => m.sender === 'ai').pop();
+
   return (
     <div 
-      className="w-full h-full relative bg-cover bg-center flex flex-col justify-between overflow-hidden"
+      className="w-full h-full relative bg-cover bg-center flex flex-col justify-between overflow-hidden transition-all duration-1000"
       style={{ backgroundImage: `url(${background})` }}
     >
-        {/* Sunny Filter Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-oil-sun/20 to-oil-water/20 mix-blend-overlay pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-oil-sun/5 to-oil-water/5 mix-blend-overlay pointer-events-none"></div>
 
-        {/* Header */}
-        <div className="relative z-10 p-6 flex justify-between items-center text-white">
+        {/* Top Controls */}
+        <div className="relative z-30 p-4 flex justify-between items-start text-white">
             <button 
                 onClick={onBack} 
-                className="bg-white/30 hover:bg-white/50 p-3 rounded-full border border-white/50 transition backdrop-blur-md group shadow-lg"
+                className={`bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition ${hideUI ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
             >
-                <ArrowLeft size={24} className="text-white group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft size={24} className="text-white" />
             </button>
-            <div className="bg-white/30 px-8 py-2 rounded-full border border-white/50 backdrop-blur-md shadow-lg">
-                <span className="font-display font-bold text-lg tracking-[0.2em] text-white uppercase drop-shadow-md">剧情模式</span>
-            </div>
-            <div className="w-12"></div>
+            
+            <button 
+                onClick={() => setHideUI(!hideUI)}
+                className="bg-black/20 hover:bg-black/40 p-3 rounded-full backdrop-blur-md transition"
+            >
+                {hideUI ? <EyeOff size={24} /> : <Eye size={24} />}
+            </button>
         </div>
 
         {/* Character Standee */}
-        <div className="absolute inset-x-0 bottom-[-5%] top-20 flex justify-center items-end pointer-events-none z-0">
-             <div className="absolute bottom-0 w-[400px] h-[100px] bg-oil-sun/30 blur-[60px] rounded-full mix-blend-screen"></div>
+        <div className="absolute inset-x-0 bottom-0 top-0 flex justify-center items-end pointer-events-none z-10">
+             <div className="absolute bottom-0 w-[500px] h-[200px] bg-black/40 blur-[80px] rounded-full mix-blend-multiply opacity-50"></div>
              <img 
                 src={character.standee} 
                 alt="character" 
-                className="max-h-[95%] object-contain drop-shadow-2xl transition-transform duration-1000" 
+                className="max-h-[95%] max-w-[90%] object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-transform duration-1000" 
              />
         </div>
 
-        {/* Dialogue UI - Glass/Light Style */}
-        <div className="relative z-20 w-full p-6 pb-10 flex flex-col items-center">
-            <div className="w-full max-w-4xl bg-white/80 border border-white/60 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-1 relative backdrop-blur-xl">
-                {/* Decorative Gold Corners */}
-                <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-oil-sun rounded-tl-lg"></div>
-                <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-oil-sun rounded-tr-lg"></div>
-                <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-oil-sun rounded-bl-lg"></div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-oil-sun rounded-br-lg"></div>
+        {/* Last Message (Hidden UI) */}
+        {hideUI && lastAiMessage && (
+             <div className="absolute bottom-24 left-4 right-4 z-20 flex justify-center animate-fade-in-up pointer-events-none">
+                 <div className="bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/40 shadow-xl max-w-2xl pointer-events-auto">
+                     <span className="text-xs font-bold text-oil-sun mb-1 block">{character.name}</span>
+                     <div className="text-sm leading-relaxed">
+                        {renderFormattedText(lastAiMessage.text)}
+                     </div>
+                 </div>
+             </div>
+        )}
 
-                <div className="p-6 rounded-xl h-[35vh] flex flex-col relative overflow-hidden">
-                    
-                    {/* History */}
-                    <div className="flex-1 overflow-y-auto pr-4 space-y-4 custom-scrollbar relative z-10" ref={scrollRef}>
-                        {chatHistory.length === 0 && (
-                            <div className="text-center text-oil-contrast/60 font-serif italic mt-10">
-                                阳光正好，你想说什么？
-                            </div>
-                        )}
-                        {chatHistory.slice(-8).map((msg) => (
-                            <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                                <span className="text-xs font-display font-bold text-oil-sunset mb-1 uppercase tracking-wider shadow-sm">
-                                    {msg.sender === 'ai' ? character.name : '你'}
-                                </span>
-                                <div className={`max-w-[90%] px-5 py-3 rounded-xl text-lg font-body leading-relaxed shadow-sm ${
-                                    msg.sender === 'user' 
-                                    ? 'bg-oil-water/20 text-oil-deepSea border border-oil-water/30' 
-                                    : 'bg-white/60 text-oil-contrast font-medium border border-white'
-                                }`}>
-                                    {msg.text}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Input Area */}
-                    <div className="mt-4 pt-4 border-t border-oil-sun/30 flex items-center gap-3 relative z-10">
-                        <Feather className="text-oil-sunset" size={24} />
-                        <input 
-                            type="text" 
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="描述你的动作或语言..."
-                            className="flex-1 bg-transparent border-none outline-none text-oil-contrast font-serif text-lg placeholder-oil-contrast/40"
-                        />
-                        <button 
-                            onClick={handleSend}
-                            className="bg-gradient-to-r from-oil-sunset to-oil-sun text-white px-8 py-2 rounded-full hover:scale-105 transition font-display font-bold tracking-widest uppercase text-sm shadow-lg border border-white/40"
+        {/* Full Chat History */}
+        {!hideUI && (
+            <div className="absolute inset-0 z-20 flex flex-col justify-end pb-24 pointer-events-none">
+                 <div 
+                    ref={scrollRef}
+                    className="flex flex-col w-full h-[60vh] overflow-y-auto pointer-events-auto custom-scrollbar px-4 md:px-20 lg:px-40 pb-4 mask-image-gradient"
+                    style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%)' }}
+                 >
+                    {activityMessages.map((msg) => (
+                        <div 
+                            key={msg.id} 
+                            className={`w-full mb-4 animate-fade-in-up flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} group relative`}
+                            onMouseEnter={() => setHoverMsgId(msg.id)}
+                            onMouseLeave={() => setHoverMsgId(null)}
                         >
-                            行动
-                        </button>
-                    </div>
-                </div>
+                             {/* Actions (Visible on Hover) */}
+                             {hoverMsgId === msg.id && !editingMsgId && (
+                                 <div className={`absolute -top-8 ${msg.sender === 'user' ? 'right-0' : 'left-0'} flex gap-1 bg-black/50 backdrop-blur rounded p-1`}>
+                                     {msg.type === 'text' && (
+                                         <button onClick={() => {setEditingMsgId(msg.id); setEditMsgText(msg.text);}} className="p-1 text-white hover:text-oil-sun"><Edit3 size={14}/></button>
+                                     )}
+                                     {msg.sender === 'ai' && (
+                                          <button onClick={() => onRegenerateMessage(msg.id)} className="p-1 text-white hover:text-oil-sun"><Repeat size={14}/></button>
+                                     )}
+                                     <button onClick={() => onDeleteMessage(msg.id)} className="p-1 text-white hover:text-red-400"><Trash2 size={14}/></button>
+                                 </div>
+                             )}
+
+                             {/* Message Content */}
+                             {msg.sender === 'user' ? (
+                                 <div className="bg-oil-deepSea/60 backdrop-blur-sm text-white px-6 py-3 rounded-xl max-w-[80%] shadow-lg border border-white/10 text-right">
+                                     {editingMsgId === msg.id ? (
+                                        <div className="flex flex-col gap-2 pointer-events-auto">
+                                            <textarea 
+                                                className="bg-white/20 text-white p-2 rounded border border-white/30 outline-none resize-none" 
+                                                value={editMsgText} 
+                                                onChange={e => setEditMsgText(e.target.value)}
+                                            />
+                                            <div className="flex gap-2 justify-end">
+                                                <button onClick={() => setEditingMsgId(null)} className="text-xs text-white/70">取消</button>
+                                                <button onClick={() => {onEditMessage(msg.id, editMsgText); setEditingMsgId(null);}} className="text-xs font-bold text-oil-sun">保存</button>
+                                            </div>
+                                        </div>
+                                     ) : (
+                                        <p className="font-serif leading-relaxed text-base">{msg.text}</p>
+                                     )}
+                                 </div>
+                             ) : (
+                                 <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-xl w-full max-w-[95%] shadow-md border border-white/40 text-left">
+                                      <span className="text-[10px] font-bold text-oil-sun mb-2 block uppercase tracking-widest">{character.name}</span>
+                                      <div className="leading-relaxed">
+                                         {editingMsgId === msg.id ? (
+                                            <div className="flex flex-col gap-2 pointer-events-auto">
+                                                <textarea 
+                                                    className="bg-white border p-2 rounded outline-none resize-none text-black" 
+                                                    value={editMsgText} 
+                                                    onChange={e => setEditMsgText(e.target.value)}
+                                                    rows={4}
+                                                />
+                                                <div className="flex gap-2 justify-end">
+                                                    <button onClick={() => setEditingMsgId(null)} className="text-xs text-gray-500">取消</button>
+                                                    <button onClick={() => {onEditMessage(msg.id, editMsgText); setEditingMsgId(null);}} className="text-xs font-bold text-oil-sun">保存</button>
+                                                </div>
+                                            </div>
+                                         ) : (
+                                            renderFormattedText(msg.text)
+                                         )}
+                                      </div>
+                                 </div>
+                             )}
+                        </div>
+                    ))}
+                 </div>
             </div>
+        )}
+
+        {/* Input Bar */}
+        <div className={`absolute bottom-0 inset-x-0 z-40 p-4 transition-transform duration-300 translate-y-0`}>
+             <div className="max-w-3xl mx-auto flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full p-2 pl-4 shadow-2xl">
+                <input 
+                    type="text" 
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="描述动作或对话..."
+                    className="flex-1 bg-transparent border-none outline-none text-white font-medium placeholder-white/50 text-sm shadow-black drop-shadow-md"
+                />
+                <button 
+                    onClick={handleSend}
+                    className="w-10 h-10 bg-oil-sun text-oil-contrast rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg"
+                >
+                    <Feather size={18} />
+                </button>
+             </div>
         </div>
     </div>
   );

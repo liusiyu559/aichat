@@ -1,5 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-import { Character, Message, Moment } from "../types";
+import { Character, Message, Moment, UserProfile, BackgroundItem } from "../types";
 
 // Helper to get API Client
 const getClient = () => {
@@ -11,9 +11,40 @@ const getClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+// Summarize conversation into long-term memory
+export const summarizeMemory = async (
+  characterName: string,
+  userName: string,
+  messages: Message[]
+): Promise<string> => {
+  const ai = getClient();
+  const conversationText = messages.map(m => `${m.sender === 'user' ? userName : characterName}: ${m.text}`).join('\n');
+  
+  const prompt = `
+  请总结以下 ${characterName} 和 ${userName} 之间的对话内容。
+  提取关键事件、情感变化和重要信息，浓缩成一段 50-100 字的记忆片段。
+  直接输出总结，不要包含其他套话。
+  
+  对话内容：
+  ${conversationText}
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    return response.text?.trim() || "";
+  } catch (error) {
+    console.error("Memory Summarization Error:", error);
+    return "";
+  }
+};
+
 // Generate Chat Response
 export const generateChatResponse = async (
   character: Character,
+  userProfile: UserProfile,
   history: Message[],
   userMessage: string,
   scene: 'phone' | 'activity',
@@ -22,44 +53,77 @@ export const generateChatResponse = async (
   const ai = getClient();
   const modelId = "gemini-2.5-flash";
 
+  let frequencyInstruction = "";
+  if (scene === 'phone') {
+      switch (character.chatFrequency) {
+        case 'high':
+          frequencyInstruction = "聊天频率：活跃。必须回复 5 到 10 条独立的消息。每条消息字数控制在 16-30 字之间。消息之间用 '|||' 分隔。";
+          break;
+        case 'low':
+          frequencyInstruction = "聊天频率：高冷。回复 0 到 2 条消息。每条消息字数控制在 3-16 字之间。消息之间用 '|||' 分隔。";
+          break;
+        default:
+          frequencyInstruction = "聊天频率：正常。回复 3 到 5 条消息。每条消息字数控制在 16-30 字之间。消息之间用 '|||' 分隔。";
+          break;
+      }
+  }
+
+  // Incorporate Long-Term Memory
+  const memoryContext = character.memory && character.memory.length > 0 
+    ? `【长期记忆/过往经历】：\n${character.memory.join('\n')}` 
+    : "【长期记忆】：暂无";
+
   let systemInstruction = `你正在扮演 ${character.name}。
   语言要求：必须完全使用中文（简体）。
   
-  你的性格：${character.personality}。
-  你的外貌：${character.appearance}。
-  你的说话风格：${character.speakingStyle}。
-  你与用户的关系：${character.relationship}。
+  【你的角色设定】
+  性别：${character.gender === 'male' ? '男' : '女'}
+  性格：${character.personality}。
+  外貌：${character.appearance}。
+  说话风格：${character.speakingStyle}。
+  经历/背景：${character.background}。
+  与用户的关系：${character.relationship}。
+
+  ${memoryContext}
+
+  【对话对象（用户）设定】
+  名字：${userProfile.name}
+  性格：${userProfile.personality}
+  外貌：${userProfile.appearance}
+  经历：${userProfile.background}
   
   当前场景：${scene === 'phone' ? '我们在手机聊天软件（微信）上聊天。' : `我们在现实生活中的地点：${location || '某个地方'}。`}
   `;
 
   if (scene === 'phone') {
     systemInstruction += `
-    手机模式严格规则：
-    1. 禁止使用括号 () 或星号 * 来描述动作或心理活动。
-    2. 只发送你在短信中会打出来的文字。
-    3. 可以适当使用 Emoji 表情。
-    4. 保持回复相对简短、日常。
-    5. 把用户当作亲密的朋友。
-    6. 语言：中文。
+    【手机聊天模式严格规则】：
+    1. 绝对禁止使用括号 ()、[] 或星号 * 来描述任何动作、表情或心理活动。
+    2. 必须完全模拟真实的线上聊天。
+    3. ${frequencyInstruction}
+    4. 只有纯文字内容。可以适当使用 Emoji。
+    5. 把用户当作亲密的朋友/伴侣。
     `;
   } else {
     systemInstruction += `
-    活动模式严格规则：
-    1. 你必须使用括号 () 来详细描述你的肢体动作、面部表情和心理活动。
-    2. 例如：(害羞地移开视线) 我觉得那样也行...
-    3. 结合环境描写。
-    4. 与环境 "${location}" 互动。
-    5. 语言：中文。
+    【剧情/活动模式严格规则】：
+    1. 必须详细描写动作和心理活动。
+    2. 格式要求：
+       - 动作、神态描写必须写在圆括号 () 内。
+       - 心理活动必须写在方括号 [] 内。
+       - 说话内容写在双引号 "" 内。
+    3. 遇到 () 或 [] 或 "" 时，请务必换行，使其排版清晰，像小说一样展开。
+    4. 结合环境描写，与环境 "${location}" 互动。
     `;
   }
 
-  // Convert history to prompt format
-  const conversationHistory = history.map(msg => 
-    `${msg.sender === 'user' ? '用户' : character.name}: ${msg.text}`
-  ).join('\n');
+  // Filter history based on scene context (Basic filtering logic handled by prompt context usually, but here we just pass relevant logs)
+  const conversationHistory = history.map(msg => {
+    const content = msg.type === 'image' ? '[图片]' : (msg.type === 'sticker' ? '[表情包]' : (msg.type === 'transfer' ? `[转账 ${msg.amount}元]` : msg.text));
+    return `${msg.sender === 'user' ? userProfile.name : character.name}: ${content}`;
+  }).join('\n');
 
-  const prompt = `${conversationHistory}\n用户: ${userMessage}\n${character.name}:`;
+  const prompt = `${conversationHistory}\n${userProfile.name}: ${userMessage}\n${character.name}:`;
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
@@ -85,6 +149,7 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: `生成一条 ${character.name} 的朋友圈内容。
+      角色性格：${character.personality}。
       语境：日常生活。
       格式：JSON 对象，包含 'content' (朋友圈文案，中文)。`,
       config: { responseMimeType: 'application/json' }
@@ -116,7 +181,61 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
   }
 };
 
+// Reply to a Moment Comment
+export const generateCommentReply = async (character: Character, userProfile: UserProfile, momentContent: string, userComment: string): Promise<string> => {
+  const ai = getClient();
+  const prompt = `
+    你正在扮演 ${character.name}。
+    你在朋友圈发了一条动态：“${momentContent}”
+    你的好友 ${userProfile.name} 评论说：“${userComment}”
+    请根据你的性格回复这条评论。回复要简短自然，像在朋友圈回复朋友一样。
+    直接输出回复内容，不要包含名字前缀。
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    return response.text?.trim() || "哈哈";
+  } catch (error) {
+    return "😂";
+  }
+};
+
+// Analyze conversation to generate a scene background keyword
+export const analyzeContextForScene = async (history: Message[], availableScenes: BackgroundItem[]): Promise<string> => {
+    const ai = getClient();
+    const recentMsgs = history.slice(-10).map(m => m.text).join('\n');
+    const sceneNames = availableScenes.map(s => s.name).join(', ');
+    
+    const prompt = `Based on the conversation below, determine which scene from the available list best matches the current context.
+    
+    Available Scenes: [${sceneNames}]
+    
+    Conversation:
+    ${recentMsgs}
+    
+    Return ONLY the exact name of the scene from the list. If none match perfectly, choose the closest one or "Cozy Room".
+    Location Name:`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt
+        });
+        const result = response.text?.trim() || "";
+        // Find match
+        const match = availableScenes.find(s => result.includes(s.name));
+        return match ? match.name : "Cozy Room";
+    } catch (e) {
+        return "Cozy Room";
+    }
+}
+
 // Generate Image wrapper
 export const getBackgroundUrl = (keyword: string): string => {
-   return `https://picsum.photos/seed/${keyword}/800/600`;
+   // Use keyword + 'interior' or 'scenery' to get better picsum results
+   const safeKeyword = encodeURIComponent(keyword + ' scenery');
+   return `https://picsum.photos/seed/${safeKeyword}/800/1000`;
 }
