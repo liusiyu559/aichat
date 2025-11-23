@@ -101,40 +101,42 @@ const App: React.FC = () => {
 
   const renderDashboard = () => (
     <div className="flex flex-col items-center justify-center min-h-screen relative overflow-hidden">
-      {/* Background with overlay */}
+      {/* Vibrant Background */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center opacity-80"
-        style={{ backgroundImage: `url('https://picsum.photos/seed/oilpaintingbg/1600/900?blur=4')` }}
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop')` }} // Sunny beach/sunset vibe
       />
-      <div className="absolute inset-0 z-0 bg-black/40 backdrop-sepia-[.3]"></div>
+      {/* Colorful Overlay Gradient */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-oil-sunset/40 via-oil-sun/20 to-oil-water/40 mix-blend-overlay"></div>
       
-      <div className="relative z-10 text-center mb-10 p-6 bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 shadow-2xl">
-        <h1 className="text-5xl md:text-6xl font-display font-bold mb-2 tracking-widest text-oil-gold oil-text-shadow">
+      <div className="relative z-10 text-center mb-10 p-8 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-2xl mx-4">
+        <h1 className="text-6xl md:text-7xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
           SoulMate OS
         </h1>
-        <p className="font-serif italic text-oil-paper text-lg opacity-90">Where memories are painted in eternal colors.</p>
+        <p className="font-serif italic text-oil-base text-xl drop-shadow-md">
+          A canvas of memories, painted in sunlight and sea.
+        </p>
       </div>
 
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
-        {/* Phone Button */}
+        {/* Phone Button - Warm/Sunset Theme */}
         <button 
           onClick={() => setMode('phone')}
-          className="group relative overflow-hidden rounded-xl border-4 border-oil-gold/40 hover:border-oil-gold transition-all duration-500 shadow-2xl bg-oil-dark/80"
+          className="group relative overflow-hidden rounded-2xl border-2 border-white/50 hover:border-oil-sun transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(255,152,0,0.6)] bg-white/80 backdrop-blur-sm"
         >
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-oil-sun/20 to-oil-sunset/20 opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative p-10 flex flex-col items-center">
-            <div className="bg-gradient-to-br from-oil-gold to-yellow-700 p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 border-2 border-white/20">
-              <Smartphone size={48} className="text-white" />
+            <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
+              <Smartphone size={48} />
             </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-paper mb-2">Connect</h2>
-            <p className="font-body text-oil-canvas/80 text-center italic">
-              "A whisper across the digital canvas..." <br/>
-              <span className="text-xs uppercase tracking-widest not-italic mt-2 block opacity-60">Open Messenger</span>
+            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">Connect</h2>
+            <p className="font-body text-oil-wood/80 text-center italic">
+              Chat under the golden sun.
             </p>
           </div>
         </button>
 
-        {/* Activity Button */}
+        {/* Activity Button - Cool/Water Theme */}
         <button 
           onClick={() => {
               if (characters.length > 0) {
@@ -144,17 +146,16 @@ const App: React.FC = () => {
                   alert("Please craft a muse first.");
               }
           }}
-          className="group relative overflow-hidden rounded-xl border-4 border-oil-gold/40 hover:border-oil-gold transition-all duration-500 shadow-2xl bg-oil-dark/80"
+          className="group relative overflow-hidden rounded-2xl border-2 border-white/50 hover:border-oil-water transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(3,169,244,0.6)] bg-white/80 backdrop-blur-sm"
         >
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-20"></div>
+           <div className="absolute inset-0 bg-gradient-to-br from-oil-water/20 to-oil-deepSea/20 opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative p-10 flex flex-col items-center">
-            <div className="bg-gradient-to-br from-oil-red to-pink-900 p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 border-2 border-white/20">
-              <MapPin size={48} className="text-white" />
+            <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
+              <MapPin size={48} />
             </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-paper mb-2">Encounter</h2>
-            <p className="font-body text-oil-canvas/80 text-center italic">
-              "Step into the frame of reality..." <br/>
-              <span className="text-xs uppercase tracking-widest not-italic mt-2 block opacity-60">Start Activity</span>
+            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">Explore</h2>
+            <p className="font-body text-oil-wood/80 text-center italic">
+              Walk along the azure shore.
             </p>
           </div>
         </button>
@@ -163,21 +164,21 @@ const App: React.FC = () => {
       <div className="relative z-10 mt-16 flex gap-6">
         <button 
             onClick={() => setMode('setup')}
-            className="flex items-center gap-3 bg-oil-paper text-oil-dark px-8 py-3 rounded-full hover:bg-white transition-colors duration-300 font-serif font-bold border-2 border-oil-gold shadow-lg"
+            className="flex items-center gap-3 bg-oil-base text-oil-contrast px-8 py-3 rounded-full hover:bg-white transition-colors duration-300 font-serif font-bold border border-oil-sun shadow-xl"
         >
-            <Palette size={20} />
-            Craft Muse
+            <Palette size={20} className="text-oil-sunset" />
+            Paint Muse
         </button>
-        <div className="flex items-center gap-3 bg-oil-dark/60 backdrop-blur text-oil-paper px-8 py-3 rounded-full border border-oil-gold/30 font-serif">
+        <div className="flex items-center gap-3 bg-oil-deepSea/80 backdrop-blur text-white px-8 py-3 rounded-full border border-oil-water/50 font-serif shadow-lg">
             <Users size={20} />
-            {characters.length} Painted Souls
+            {characters.length} Souls
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-oil-dark canvas-bg">
+    <div className="h-screen w-screen overflow-hidden bg-oil-base canvas-bg">
       {mode === 'dashboard' && renderDashboard()}
       
       {mode === 'setup' && (
@@ -188,9 +189,9 @@ const App: React.FC = () => {
       )}
 
       {mode === 'phone' && (
-        <div className="flex items-center justify-center h-full p-4 bg-black/60 backdrop-blur-sm">
-             {/* Phone Container stylized as a physical object/frame */}
-            <div className="h-full w-full max-w-[420px] max-h-[850px] bg-wx-bg rounded-[40px] shadow-2xl relative border-8 border-gray-800 overflow-hidden ring-4 ring-oil-gold/30">
+        <div className="flex items-center justify-center h-full p-4 bg-oil-contrast/40 backdrop-blur-sm">
+             {/* Phone Container - Vibrant Gold/Copper Frame */}
+            <div className="h-full w-full max-w-[420px] max-h-[850px] bg-wx-bg rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative border-[6px] border-oil-wood overflow-hidden ring-4 ring-oil-sun/60">
                 <PhoneInterface 
                     characters={characters}
                     activeCharacterId={activeCharId}

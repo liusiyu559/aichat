@@ -21,26 +21,26 @@
             },
             colors: {
               oil: {
-                canvas: '#fdf6e3',
-                gold: '#d4af37',
-                amber: '#b45309',
-                deepBlue: '#1e3a8a',
-                dark: '#2c1810',
-                paper: '#f3e5ab',
-                red: '#8b0000',
+                base: '#fff8e1', // Light cream
+                sun: '#fbc02d',   // Sunny Yellow
+                sunset: '#ff7043', // Orange Red
+                water: '#29b6f6',  // Azure Blue
+                deepSea: '#01579b', // Deep Blue
+                meadow: '#66bb6a', // Fresh Green
+                wood: '#5d4037',   // Warm Brown
+                contrast: '#1a237e', // Deep Indigo (Text)
               },
               wx: {
-                bg: '#f0ebd8', // Warm parchment
-                chatBg: '#e6dfc8', // Darker parchment
-                green: '#789c4a', // Olive green (Retro WeChat)
-                greenDark: '#556b2f',
-                text: '#2c1810',
-                grey: '#8d8d8d',
+                bg: '#fffbf0', // Very light warm white
+                header: '#ffe0b2', // Pale orange header
+                green: '#9ccc65', // Light vibrant green
+                greenDark: '#7cb342',
+                text: '#3e2723', // Dark brown text
               }
             },
             backgroundImage: {
-              'oil-texture': "url('https://www.transparenttextures.com/patterns/canvas-orange.png')",
-              'paper-texture': "url('https://www.transparenttextures.com/patterns/cream-paper.png')",
+              'sunset-gradient': 'linear-gradient(135deg, #ff9800 0%, #ff5722 50%, #1976d2 100%)',
+              'water-texture': "url('https://www.transparenttextures.com/patterns/canvas-orange.png')",
             }
           }
         }
@@ -59,27 +59,27 @@
       
       body {
         font-family: 'Lora', serif;
-        background-color: #2c1810;
+        background-color: #fff8e1;
+        color: #3e2723;
       }
 
       .canvas-bg {
-        background-color: #eaddcf;
+        background-color: #fff8e1;
         background-image: url("https://www.transparenttextures.com/patterns/canvas-orange.png");
       }
 
-      .frame-border {
-        border: 8px solid #6d4c41;
-        border-image: url("https://www.transparenttextures.com/patterns/wood-pattern.png") 30 stretch;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.5);
-      }
-      
-      .gold-frame {
-        border: 2px solid #d4af37;
-        box-shadow: 0 0 5px #d4af37, inset 0 0 5px #d4af37;
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
       .oil-text-shadow {
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      }
+      
+      .vibrant-shadow {
+        box-shadow: 0 10px 30px -10px rgba(255, 87, 34, 0.4);
       }
     </style>
   <script type="importmap">
