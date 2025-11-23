@@ -5,8 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AI SoulMate OS</title>
     
-    <!-- Polyfill process IMMEDIATELY before any other scripts to prevent crash -->
+    <!-- Global Error Handler -->
     <script>
+      window.addEventListener('error', function(event) {
+        console.error("Global Error:", event.error);
+        const root = document.getElementById('root');
+        if (root && root.innerHTML === '') {
+          const errorDiv = document.createElement('div');
+          errorDiv.style.padding = '20px';
+          errorDiv.style.color = 'red';
+          errorDiv.innerHTML = '<h3>Startup Error</h3><pre>' + event.message + '</pre>';
+          document.body.appendChild(errorDiv);
+        }
+      });
+      
+      // Polyfill process
       window.process = window.process || { env: {} };
     </script>
 
@@ -108,6 +121,7 @@
   <script type="importmap">
 {
   "imports": {
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
@@ -119,5 +133,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
