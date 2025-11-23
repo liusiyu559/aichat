@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AI SoulMate OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Import Elegant Serif Fonts -->
+    <!-- Import Elegant Serif Fonts & Chinese Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              serif: ['"Playfair Display"', 'serif'],
-              body: ['"Lora"', 'serif'],
-              display: ['"Cinzel"', 'serif'],
+              serif: ['"Noto Serif SC"', '"Playfair Display"', 'serif'],
+              body: ['"Noto Serif SC"', 'serif'],
+              display: ['"ZCOOL XiaoWei"', '"Ma Shan Zheng"', 'serif'],
             },
             colors: {
               oil: {
@@ -41,6 +41,9 @@
             backgroundImage: {
               'sunset-gradient': 'linear-gradient(135deg, #ff9800 0%, #ff5722 50%, #1976d2 100%)',
               'water-texture': "url('https://www.transparenttextures.com/patterns/canvas-orange.png')",
+            },
+            animation: {
+              'spin-slow': 'spin 3s linear infinite',
             }
           }
         }
@@ -58,7 +61,7 @@
       }
       
       body {
-        font-family: 'Lora', serif;
+        font-family: 'Noto Serif SC', serif;
         background-color: #fff8e1;
         color: #3e2723;
       }
@@ -74,12 +77,18 @@
         border: 1px solid rgba(255, 255, 255, 0.4);
       }
 
-      .oil-text-shadow {
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
       }
-      
-      .vibrant-shadow {
-        box-shadow: 0 10px 30px -10px rgba(255, 87, 34, 0.4);
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.05);
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 112, 67, 0.4);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 112, 67, 0.7);
       }
     </style>
   <script type="importmap">

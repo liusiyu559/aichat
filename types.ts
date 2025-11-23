@@ -32,22 +32,15 @@ export interface Moment {
 export type AppMode = 'setup' | 'dashboard' | 'phone' | 'activity';
 export type PhoneView = 'chatList' | 'chatRoom' | 'moments';
 
-export enum Weather {
-  SUNNY = 'Sunny',
-  RAINY = 'Rainy',
-  CLOUDY = 'Cloudy',
-  NIGHT = 'Night'
-}
-
 export const INITIAL_CHARACTERS: Character[] = [
   {
     id: '1',
-    name: 'Xia Wei',
+    name: '夏薇',
     avatar: 'https://picsum.photos/seed/xiawei/200/200',
     standee: 'https://picsum.photos/seed/xiaweistand/400/800',
-    personality: 'Tsundere, protective but sharp-tongued. Secretly cares deeply.',
-    appearance: 'Black long hair, usually wears streetwear.',
-    speakingStyle: 'Short sentences, uses sarcasm. Rarely admits feelings directly.',
-    relationship: 'Childhood friend'
+    personality: '傲娇，嘴硬心软，非常护短。内心细腻但表面强势。',
+    appearance: '黑色长直发，通常穿着时尚的街头风格衣服。',
+    speakingStyle: '短句，偶尔带点讽刺，很少直接承认自己的感情。',
+    relationship: '青梅竹马'
   }
 ];

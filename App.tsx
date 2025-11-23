@@ -19,10 +19,10 @@ const App: React.FC = () => {
     {
       id: 'init-1',
       authorId: '1',
-      content: 'The sunset colors reminded me of that painting we saw...',
+      content: '落日的余晖总是让人想起那幅油画...',
       images: ['https://picsum.photos/seed/art/300/300'],
       timestamp: Date.now() - 1000000,
-      likes: ['Me'],
+      likes: ['我'],
       comments: []
     }
   ]);
@@ -34,7 +34,7 @@ const App: React.FC = () => {
     const newMessage: Message = {
       id: Date.now().toString(),
       sender: 'user',
-      text: type === 'transfer' ? `Transferred ¥100.00` : text,
+      text: type === 'transfer' ? `转账 ¥100.00` : text,
       type: type,
       timestamp: Date.now(),
       amount: type === 'transfer' ? 100 : undefined,
@@ -52,7 +52,7 @@ const App: React.FC = () => {
             const responseText = await generateChatResponse(
                 character,
                 currentHistory,
-                type === 'transfer' ? "(User sent money)" : (type === 'image' ? "(User sent an image)" : text),
+                type === 'transfer' ? "(用户发起了转账)" : (type === 'image' ? "(用户发送了一张图片)" : text),
                 fromMode
             );
 
@@ -87,10 +87,10 @@ const App: React.FC = () => {
   const handleLikeMoment = (id: string) => {
       setMoments(prev => prev.map(m => {
           if (m.id === id) {
-              const liked = m.likes.includes('Me');
+              const liked = m.likes.includes('我');
               return {
                   ...m,
-                  likes: liked ? m.likes.filter(l => l !== 'Me') : [...m.likes, 'Me']
+                  likes: liked ? m.likes.filter(l => l !== '我') : [...m.likes, '我']
               }
           }
           return m;
@@ -111,10 +111,10 @@ const App: React.FC = () => {
       
       <div className="relative z-10 text-center mb-10 p-8 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-2xl mx-4">
         <h1 className="text-6xl md:text-7xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-          SoulMate OS
+          AI 伴侣 OS
         </h1>
         <p className="font-serif italic text-oil-base text-xl drop-shadow-md">
-          A canvas of memories, painted in sunlight and sea.
+          记忆的画布，绘着阳光与海。
         </p>
       </div>
 
@@ -129,9 +129,9 @@ const App: React.FC = () => {
             <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
               <Smartphone size={48} />
             </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">Connect</h2>
+            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">联络</h2>
             <p className="font-body text-oil-wood/80 text-center italic">
-              Chat under the golden sun.
+              在金色的阳光下畅聊。
             </p>
           </div>
         </button>
@@ -143,7 +143,7 @@ const App: React.FC = () => {
                   setActiveCharId(characters[0].id);
                   setMode('activity');
               } else {
-                  alert("Please craft a muse first.");
+                  alert("请先创造一个角色。");
               }
           }}
           className="group relative overflow-hidden rounded-2xl border-2 border-white/50 hover:border-oil-water transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(3,169,244,0.6)] bg-white/80 backdrop-blur-sm"
@@ -153,9 +153,9 @@ const App: React.FC = () => {
             <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
               <MapPin size={48} />
             </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">Explore</h2>
+            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">探索</h2>
             <p className="font-body text-oil-wood/80 text-center italic">
-              Walk along the azure shore.
+              漫步在蔚蓝海岸。
             </p>
           </div>
         </button>
@@ -167,11 +167,11 @@ const App: React.FC = () => {
             className="flex items-center gap-3 bg-oil-base text-oil-contrast px-8 py-3 rounded-full hover:bg-white transition-colors duration-300 font-serif font-bold border border-oil-sun shadow-xl"
         >
             <Palette size={20} className="text-oil-sunset" />
-            Paint Muse
+            创造角色
         </button>
         <div className="flex items-center gap-3 bg-oil-deepSea/80 backdrop-blur text-white px-8 py-3 rounded-full border border-oil-water/50 font-serif shadow-lg">
             <Users size={20} />
-            {characters.length} Souls
+            {characters.length} 位角色
         </div>
       </div>
     </div>

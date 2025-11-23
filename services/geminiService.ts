@@ -20,42 +20,46 @@ export const generateChatResponse = async (
   location?: string
 ): Promise<string> => {
   const ai = getClient();
-  const modelId = "gemini-2.5-flash"; // Fast and good for chat
+  const modelId = "gemini-2.5-flash";
 
-  let systemInstruction = `You are roleplaying as ${character.name}. 
-  Your personality: ${character.personality}.
-  Your appearance: ${character.appearance}.
-  Your speaking style: ${character.speakingStyle}.
-  Your relationship to the user: ${character.relationship}.
+  let systemInstruction = `你正在扮演 ${character.name}。
+  语言要求：必须完全使用中文（简体）。
   
-  Current Context: ${scene === 'phone' ? 'We are chatting on a mobile messenger app (like WeChat).' : `We are hanging out in real life at: ${location || 'a random place'}.`}
+  你的性格：${character.personality}。
+  你的外貌：${character.appearance}。
+  你的说话风格：${character.speakingStyle}。
+  你与用户的关系：${character.relationship}。
+  
+  当前场景：${scene === 'phone' ? '我们在手机聊天软件（微信）上聊天。' : `我们在现实生活中的地点：${location || '某个地方'}。`}
   `;
 
   if (scene === 'phone') {
     systemInstruction += `
-    CRITICAL RULES FOR PHONE MODE:
-    1. DO NOT describe actions or internal thoughts in parentheses or asterisks.
-    2. Only send what you would type in a text message.
-    3. You can use emojis.
-    4. Keep messages relatively short and casual.
-    5. Treat the user as a close friend/contact.
+    手机模式严格规则：
+    1. 禁止使用括号 () 或星号 * 来描述动作或心理活动。
+    2. 只发送你在短信中会打出来的文字。
+    3. 可以适当使用 Emoji 表情。
+    4. 保持回复相对简短、日常。
+    5. 把用户当作亲密的朋友。
+    6. 语言：中文。
     `;
   } else {
     systemInstruction += `
-    CRITICAL RULES FOR ACTIVITY MODE:
-    1. You MUST describe your physical actions, facial expressions, and internal thoughts using parentheses ().
-    2. Example: (Looks away shyly) I guess that's okay.
-    3. Be descriptive about the environment if relevant.
-    4. Interact with the environment "${location}".
+    活动模式严格规则：
+    1. 你必须使用括号 () 来详细描述你的肢体动作、面部表情和心理活动。
+    2. 例如：(害羞地移开视线) 我觉得那样也行...
+    3. 结合环境描写。
+    4. 与环境 "${location}" 互动。
+    5. 语言：中文。
     `;
   }
 
   // Convert history to prompt format
   const conversationHistory = history.map(msg => 
-    `${msg.sender === 'user' ? 'User' : character.name}: ${msg.text}`
+    `${msg.sender === 'user' ? '用户' : character.name}: ${msg.text}`
   ).join('\n');
 
-  const prompt = `${conversationHistory}\nUser: ${userMessage}\n${character.name}:`;
+  const prompt = `${conversationHistory}\n用户: ${userMessage}\n${character.name}:`;
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
@@ -63,31 +67,14 @@ export const generateChatResponse = async (
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
-        temperature: 0.7, // slightly creative
+        temperature: 0.7,
       }
     });
 
     return response.text || "...";
   } catch (error) {
     console.error("Gemini Chat Error:", error);
-    return "(Network error, please try again)";
-  }
-};
-
-// Generate Scene Background Description (for Activity Mode)
-export const generateSceneDescription = async (
-  locationType: string
-): Promise<string> => {
-  const ai = getClient();
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: `Describe a visual scene background for a visual novel. Location: ${locationType}. 
-      Return ONLY the visual description suitable for an image generator prompt. detailed, anime style, background art.`,
-    });
-    return response.text || "A beautiful room";
-  } catch (e) {
-    return "A general room background";
+    return "(网络小差，请重试)";
   }
 };
 
@@ -97,9 +84,9 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `Generate a realistic social media post for ${character.name}.
-      Context: They are living their daily life.
-      Format: JSON object with 'content' (text of post).`,
+      contents: `生成一条 ${character.name} 的朋友圈内容。
+      语境：日常生活。
+      格式：JSON 对象，包含 'content' (朋友圈文案，中文)。`,
       config: { responseMimeType: 'application/json' }
     });
     
@@ -109,17 +96,17 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
     return {
       id: Date.now().toString(),
       authorId: character.id,
-      content: data.content || "Just chilling...",
-      images: [`https://picsum.photos/seed/${Date.now()}/400/300`], // Placeholder for stability
+      content: data.content || "今天天气真不错~",
+      images: [`https://picsum.photos/seed/${Date.now()}/400/300`],
       timestamp: Date.now(),
       likes: [],
       comments: []
     };
-  } catch (e) {
+  } catch (_) {
     return {
       id: Date.now().toString(),
       authorId: character.id,
-      content: "Lovely day today! ☀️",
+      content: "今天心情很好！☀️",
       images: [],
       timestamp: Date.now(),
       likes: [],
@@ -128,9 +115,7 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
   }
 };
 
-// Generate Image (Simulated wrapper or actual if desired, used for backgrounds if key allows)
-// Using placeholder logic mostly to ensure speed/reliability in this demo format, 
-// but code is structured to allow switching to imagen.
+// Generate Image wrapper
 export const getBackgroundUrl = (keyword: string): string => {
    return `https://picsum.photos/seed/${keyword}/800/600`;
 }

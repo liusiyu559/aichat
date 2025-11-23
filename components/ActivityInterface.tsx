@@ -21,7 +21,7 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Use bright, sunny scenic terms
+    // Use bright, sunny scenic terms (keeping seeds English for variety, but UI is Chinese)
     const places = ['sunny beach cafe', 'vibrant flower garden', 'venice canal sunset', 'royal gold palace'];
     const place = places[Math.floor(Math.random() * places.length)];
     setBackground(getBackgroundUrl(place));
@@ -56,7 +56,7 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
                 <ArrowLeft size={24} className="text-white group-hover:-translate-x-1 transition-transform" />
             </button>
             <div className="bg-white/30 px-8 py-2 rounded-full border border-white/50 backdrop-blur-md shadow-lg">
-                <span className="font-display font-bold text-lg tracking-[0.2em] text-white uppercase drop-shadow-md">Story Mode</span>
+                <span className="font-display font-bold text-lg tracking-[0.2em] text-white uppercase drop-shadow-md">剧情模式</span>
             </div>
             <div className="w-12"></div>
         </div>
@@ -86,13 +86,13 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
                     <div className="flex-1 overflow-y-auto pr-4 space-y-4 custom-scrollbar relative z-10" ref={scrollRef}>
                         {chatHistory.length === 0 && (
                             <div className="text-center text-oil-contrast/60 font-serif italic mt-10">
-                                The sun is warm. What do you want to say?
+                                阳光正好，你想说什么？
                             </div>
                         )}
                         {chatHistory.slice(-8).map((msg) => (
                             <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                                 <span className="text-xs font-display font-bold text-oil-sunset mb-1 uppercase tracking-wider shadow-sm">
-                                    {msg.sender === 'ai' ? character.name : 'You'}
+                                    {msg.sender === 'ai' ? character.name : '你'}
                                 </span>
                                 <div className={`max-w-[90%] px-5 py-3 rounded-xl text-lg font-body leading-relaxed shadow-sm ${
                                     msg.sender === 'user' 
@@ -113,14 +113,14 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Write your action..."
+                            placeholder="描述你的动作或语言..."
                             className="flex-1 bg-transparent border-none outline-none text-oil-contrast font-serif text-lg placeholder-oil-contrast/40"
                         />
                         <button 
                             onClick={handleSend}
                             className="bg-gradient-to-r from-oil-sunset to-oil-sun text-white px-8 py-2 rounded-full hover:scale-105 transition font-display font-bold tracking-widest uppercase text-sm shadow-lg border border-white/40"
                         >
-                            Act
+                            行动
                         </button>
                     </div>
                 </div>
