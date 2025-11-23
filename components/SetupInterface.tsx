@@ -56,7 +56,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
                 <label className="block text-sm font-display font-bold text-oil-sunset mb-1 uppercase tracking-wider">名字</label>
                 <input 
                   className="w-full p-3 bg-white border-b-2 border-oil-sun/30 focus:border-oil-sunset outline-none font-serif text-xl placeholder-gray-300 transition-colors rounded-t-lg"
-                  value={formData.name}
+                  value={formData.name || ''}
                   onChange={e => handleChange('name', e.target.value)}
                   placeholder="输入名字..."
                 />
@@ -66,7 +66,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
                 <label className="block text-sm font-display font-bold text-oil-sunset mb-1 uppercase tracking-wider">关系</label>
                 <input 
                   className="w-full p-3 bg-white border-b-2 border-oil-sun/30 focus:border-oil-sunset outline-none font-serif text-xl placeholder-gray-300 rounded-t-lg"
-                  value={formData.relationship}
+                  value={formData.relationship || ''}
                   onChange={e => handleChange('relationship', e.target.value)}
                   placeholder="例如：青梅竹马"
                 />
@@ -77,7 +77,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
             <label className="block text-sm font-display font-bold text-oil-sunset mb-2 uppercase tracking-wider">性格与灵魂</label>
             <textarea 
               className="w-full p-4 bg-white border border-oil-sun/20 rounded-xl focus:border-oil-sunset outline-none h-32 font-body text-lg resize-none shadow-inner text-oil-contrast"
-              value={formData.personality}
+              value={formData.personality || ''}
               onChange={e => handleChange('personality', e.target.value)}
               placeholder="描述他/她的内心世界、性格特点..."
             />
@@ -87,7 +87,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
             <label className="block text-sm font-display font-bold text-oil-sunset mb-2 uppercase tracking-wider">外貌描述</label>
             <input 
               className="w-full p-3 bg-white border border-oil-sun/20 rounded-xl focus:border-oil-sunset outline-none font-body text-lg text-oil-contrast"
-              value={formData.appearance}
+              value={formData.appearance || ''}
               onChange={e => handleChange('appearance', e.target.value)}
               placeholder="详细的身体特征、穿着..."
             />
@@ -102,7 +102,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
                     </div>
                     <input 
                     className="flex-1 p-2 border border-gray-200 rounded bg-white text-xs font-mono"
-                    value={formData.avatar}
+                    value={formData.avatar || ''}
                     onChange={e => handleChange('avatar', e.target.value)}
                     />
                 </div>
@@ -116,7 +116,7 @@ const SetupInterface: React.FC<SetupInterfaceProps> = ({ onSave, onCancel, exist
                     </div>
                     <input 
                     className="flex-1 p-2 border border-gray-200 rounded bg-white text-xs font-mono"
-                    value={formData.standee}
+                    value={formData.standee || ''}
                     onChange={e => handleChange('standee', e.target.value)}
                     />
                 </div>

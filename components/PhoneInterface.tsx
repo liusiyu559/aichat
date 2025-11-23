@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Plus, Smile, Image as ImageIcon, Wallet, ChevronLeft, MoreHorizontal, MessageCircle, Heart } from 'lucide-react';
+import { Mic, Plus, Smile, Image as ImageIcon, Wallet, ChevronLeft, MoreHorizontal, MessageCircle, Heart, RefreshCw } from 'lucide-react';
 import { Character, Message, Moment, PhoneView } from '../types';
 
 interface PhoneInterfaceProps {
@@ -22,6 +22,7 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
   onSelectCharacter,
   onBack,
   moments,
+  onRefreshMoments,
   onLikeMoment
 }) => {
   const [view, setView] = useState<PhoneView>('chatList');
@@ -245,6 +246,12 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
                     <ChevronLeft size={24} />
                 </button>
                 <span className="font-serif font-bold text-lg text-white w-full text-center">朋友圈</span>
+                <button 
+                  onClick={onRefreshMoments} 
+                  className="absolute right-4 text-white hover:text-oil-base transition"
+                >
+                  <RefreshCw size={20} />
+                </button>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">

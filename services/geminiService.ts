@@ -102,7 +102,8 @@ export const generateMoment = async (character: Character): Promise<Moment> => {
       likes: [],
       comments: []
     };
-  } catch (_) {
+  } catch (error) {
+    console.error("Generate Moment Error:", error);
     return {
       id: Date.now().toString(),
       authorId: character.id,
