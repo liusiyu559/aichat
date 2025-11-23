@@ -55,7 +55,7 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
   const activityMessages = chatHistory.filter(m => m.scene === 'activity');
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !hideUI) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [activityMessages, hideUI]);
@@ -73,13 +73,13 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
           if (!trimmed) return null;
           
           if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-              return <p key={lineIdx} className="text-[#4caf50] font-medium my-1 bg-white/90 px-2 py-1 rounded shadow-sm inline-block font-body">{trimmed}</p>
+              return <p key={lineIdx} className="text-oil-meadow font-medium my-1 block font-body opacity-100">{trimmed}</p>
           } 
           else if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
-              return <p key={lineIdx} className="text-[#ff9800] italic my-1 font-serif text-sm">{trimmed}</p>
+              return <p key={lineIdx} className="text-oil-sunset italic my-1 font-serif text-sm block">{trimmed}</p>
           } 
           else if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
-               return <p key={lineIdx} className="text-black font-bold text-base my-2 font-serif tracking-wide">{trimmed}</p>
+               return <p key={lineIdx} className="text-black font-bold text-base my-2 font-serif tracking-wide block">{trimmed}</p>
           }
           else {
               if (trimmed.includes('"')) {
@@ -98,8 +98,6 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
           }
       });
   };
-
-  const lastAiMessage = activityMessages.filter(m => m.sender === 'ai').pop();
 
   return (
     <div 
@@ -135,25 +133,12 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
              />
         </div>
 
-        {/* Last Message (Hidden UI) */}
-        {hideUI && lastAiMessage && (
-             <div className="absolute bottom-24 left-4 right-4 z-20 flex justify-center animate-fade-in-up pointer-events-none">
-                 <div className="bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/40 shadow-xl max-w-2xl pointer-events-auto">
-                     <span className="text-xs font-bold text-oil-sun mb-1 block">{character.name}</span>
-                     <div className="text-sm leading-relaxed">
-                        {renderFormattedText(lastAiMessage.text)}
-                     </div>
-                 </div>
-             </div>
-        )}
-
         {/* Full Chat History */}
         {!hideUI && (
             <div className="absolute inset-0 z-20 flex flex-col justify-end pb-24 pointer-events-none">
                  <div 
                     ref={scrollRef}
-                    className="flex flex-col w-full h-[60vh] overflow-y-auto pointer-events-auto custom-scrollbar px-4 md:px-20 lg:px-40 pb-4 mask-image-gradient"
-                    style={{ maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%)' }}
+                    className="flex flex-col w-full h-[75vh] overflow-y-auto pointer-events-auto custom-scrollbar px-4 md:px-20 lg:px-40 pb-4"
                  >
                     {activityMessages.map((msg) => (
                         <div 
@@ -177,7 +162,7 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
 
                              {/* Message Content */}
                              {msg.sender === 'user' ? (
-                                 <div className="bg-oil-deepSea/60 backdrop-blur-sm text-white px-6 py-3 rounded-xl max-w-[80%] shadow-lg border border-white/10 text-right">
+                                 <div className="bg-oil-deepSea/60 backdrop-blur-sm text-white px-6 py-3 rounded-xl max-w-[80%] shadow-lg border border-white/10 text-right pointer-events-auto">
                                      {editingMsgId === msg.id ? (
                                         <div className="flex flex-col gap-2 pointer-events-auto">
                                             <textarea 
@@ -195,7 +180,7 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
                                      )}
                                  </div>
                              ) : (
-                                 <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-xl w-full max-w-[95%] shadow-md border border-white/40 text-left">
+                                 <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-xl w-full max-w-[95%] shadow-md border border-white/40 text-left pointer-events-auto">
                                       <span className="text-[10px] font-bold text-oil-sun mb-2 block uppercase tracking-widest">{character.name}</span>
                                       <div className="leading-relaxed">
                                          {editingMsgId === msg.id ? (
@@ -223,25 +208,27 @@ const ActivityInterface: React.FC<ActivityInterfaceProps> = ({
             </div>
         )}
 
-        {/* Input Bar */}
-        <div className={`absolute bottom-0 inset-x-0 z-40 p-4 transition-transform duration-300 translate-y-0`}>
-             <div className="max-w-3xl mx-auto flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full p-2 pl-4 shadow-2xl">
-                <input 
-                    type="text" 
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder="描述动作或对话..."
-                    className="flex-1 bg-transparent border-none outline-none text-white font-medium placeholder-white/50 text-sm shadow-black drop-shadow-md"
-                />
-                <button 
-                    onClick={handleSend}
-                    className="w-10 h-10 bg-oil-sun text-oil-contrast rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg"
-                >
-                    <Feather size={18} />
-                </button>
-             </div>
-        </div>
+        {/* Input Bar - Hidden when UI is hidden */}
+        {!hideUI && (
+            <div className={`absolute bottom-0 inset-x-0 z-40 p-4 transition-transform duration-300 translate-y-0`}>
+                <div className="max-w-3xl mx-auto flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full p-2 pl-4 shadow-2xl">
+                    <input 
+                        type="text" 
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        placeholder="描述动作或对话..."
+                        className="flex-1 bg-transparent border-none outline-none text-white font-medium placeholder-white/50 text-sm shadow-black drop-shadow-md"
+                    />
+                    <button 
+                        onClick={handleSend}
+                        className="w-10 h-10 bg-oil-sun text-oil-contrast rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg"
+                    >
+                        <Feather size={18} />
+                    </button>
+                </div>
+            </div>
+        )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Part } from "@google/genai";
 import { Character, Message, Moment, UserProfile, BackgroundItem } from "../types";
 
 // Helper to get API Client
@@ -9,6 +9,52 @@ const getClient = () => {
     throw new Error("API Key is missing");
   }
   return new GoogleGenAI({ apiKey });
+};
+
+// Helper to convert URL to Gemini Inline Data Part
+const urlToPart = async (url: string): Promise<Part | null> => {
+  try {
+    // If already Base64
+    if (url.startsWith('data:')) {
+      const match = url.match(/^data:(.*?);base64,(.*)$/);
+      if (match) {
+        return {
+          inlineData: {
+            mimeType: match[1],
+            data: match[2]
+          }
+        };
+      }
+    }
+
+    // If Remote URL (try to fetch)
+    // Note: This relies on the server supporting CORS. Catbox usually does.
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch image");
+    const blob = await response.blob();
+    
+    return new Promise<Part | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        const match = base64data.match(/^data:(.*?);base64,(.*)$/);
+        if (match) {
+          resolve({
+            inlineData: {
+              mimeType: match[1],
+              data: match[2]
+            }
+          });
+        } else {
+          resolve(null);
+        }
+      };
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.error("Error processing image url:", e);
+    return null;
+  }
 };
 
 // Summarize conversation into long-term memory
@@ -107,28 +153,48 @@ export const generateChatResponse = async (
   } else {
     systemInstruction += `
     【剧情/活动模式严格规则】：
-    1. 必须详细描写动作和心理活动。
-    2. 格式要求：
+    1. **核心原则**：你必须严格使用第一人称“我”来指代${character.name}。
+    2. **绝对禁忌**：你绝对**不可以**代替用户（${userProfile.name}）说话、描写用户的动作或心理活动。你只能描写${character.name}自己的言行和心理。
+    3. **格式严格要求**：
        - 动作、神态描写必须写在圆括号 () 内。
        - 心理活动必须写在方括号 [] 内。
        - 说话内容写在双引号 "" 内。
-    3. 遇到 () 或 [] 或 "" 时，请务必换行，使其排版清晰，像小说一样展开。
+       - **重要**：每种类型的内容（动作、心理、对话）必须分别单独起一行。不要写在同一行。
     4. 结合环境描写，与环境 "${location}" 互动。
+    5. 像写第一人称小说一样展开剧情。
     `;
   }
 
-  // Filter history based on scene context (Basic filtering logic handled by prompt context usually, but here we just pass relevant logs)
+  // Handle Multimodal Input (Last message image)
+  const lastMsg = history[history.length - 1];
+  const parts: Part[] = [];
+
+  // Construct text history
   const conversationHistory = history.map(msg => {
+    // If it's the last message and it's an image, we handle it separately below via parts
+    if (msg.id === lastMsg.id && (msg.type === 'image' || msg.type === 'sticker')) {
+        return `${msg.sender === 'user' ? userProfile.name : character.name}: [发送了一张图片/表情包]`;
+    }
     const content = msg.type === 'image' ? '[图片]' : (msg.type === 'sticker' ? '[表情包]' : (msg.type === 'transfer' ? `[转账 ${msg.amount}元]` : msg.text));
     return `${msg.sender === 'user' ? userProfile.name : character.name}: ${content}`;
   }).join('\n');
 
-  const prompt = `${conversationHistory}\n${userProfile.name}: ${userMessage}\n${character.name}:`;
+  // Add History Context
+  parts.push({ text: `${conversationHistory}\n${character.name}:` });
+
+  // If the last message was an image/sticker from user, add the image data
+  if (lastMsg && lastMsg.sender === 'user' && (lastMsg.type === 'image' || lastMsg.type === 'sticker') && lastMsg.imageUrl) {
+      const imagePart = await urlToPart(lastMsg.imageUrl);
+      if (imagePart) {
+          parts.push(imagePart);
+          parts.push({ text: "\n(用户发送了这张图片/表情包，请根据图片内容和上下文进行回复)" });
+      }
+  }
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: modelId,
-      contents: prompt,
+      contents: [{ role: 'user', parts: parts }],
       config: {
         systemInstruction: systemInstruction,
         temperature: 0.7,
