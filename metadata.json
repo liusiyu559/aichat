@@ -1,0 +1,8 @@
+{
+  "name": "AI SoulMate OS",
+  "description": "A dual-mode AI roleplay application featuring a realistic WeChat-style phone interface and an immersive visual novel activity mode, powered by Google Gemini.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
