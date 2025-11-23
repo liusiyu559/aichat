@@ -363,7 +363,7 @@ const App: React.FC = () => {
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-oil-sunset/40 via-oil-sun/20 to-oil-water/40 mix-blend-overlay"></div>
       
       {/* Title Section */}
-      <div className="relative z-10 text-center mb-16 p-6 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-xl mx-4 animate-fade-in-up">
+      <div className="relative z-10 text-center mb-16 p-6 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-xl mx-4">
         <h1 className="text-4xl md:text-5xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
           AI SoulMate
         </h1>
@@ -373,7 +373,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Main Actions - Just ONE main button now (Contact) */}
-      <div className="relative z-10 flex flex-row gap-12 items-center justify-center w-full px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+      <div className="relative z-10 flex flex-row gap-12 items-center justify-center w-full px-4">
         
         {/* Phone Button */}
         <button 

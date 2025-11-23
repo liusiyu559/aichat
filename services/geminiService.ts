@@ -172,7 +172,7 @@ export const generateChatResponse = async (
   // Construct text history
   const conversationHistory = history.map(msg => {
     // If it's the last message and it's an image, we handle it separately below via parts
-    if (msg.id === lastMsg.id && (msg.type === 'image' || msg.type === 'sticker')) {
+    if (msg.id === lastMsg?.id && (msg.type === 'image' || msg.type === 'sticker')) {
         return `${msg.sender === 'user' ? userProfile.name : character.name}: [发送了一张图片/表情包]`;
     }
     const content = msg.type === 'image' ? '[图片]' : (msg.type === 'sticker' ? '[表情包]' : (msg.type === 'transfer' ? `[转账 ${msg.amount}元]` : msg.text));

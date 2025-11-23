@@ -152,12 +152,16 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
             recognitionRef.current.stop();
             recognitionRef.current = null;
         }
-        window.speechSynthesis.cancel();
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
     }
     return () => {
         clearInterval(interval);
         if (recognitionRef.current) recognitionRef.current.stop();
-        window.speechSynthesis.cancel();
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
     };
   }, [isCalling, isMuted]);
 

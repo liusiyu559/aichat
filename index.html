@@ -4,19 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AI SoulMate OS</title>
+    
+    <!-- Polyfill process IMMEDIATELY before any other scripts to prevent crash -->
+    <script>
+      window.process = window.process || { env: {} };
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Import Elegant Serif Fonts & Chinese Fonts -->
+    
+    <!-- Import Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
-    <script>
-      // Polyfill process for browser environments to prevent crash on Vercel
-      if (typeof process === 'undefined') {
-        window.process = { env: {} };
-      }
-    </script>
-
     <script>
       tailwind.config = {
         theme: {
