@@ -53,12 +53,6 @@ const App: React.FC = () => {
     // 2. API Call
     const character = characters.find(c => c.id === activeCharId);
     if (character) {
-            // Retrieve latest history from state is tricky in callbacks, so we reconstruct context
-            // In a real app, we might use a ref for history or a reducer. 
-            // Here we just pass the NEW message + existing history (from the closure time, risking staleness if rapid fire, but acceptable for MVP)
-            // To fix staleness, we ideally need to read the state inside the async operation, but React state doesn't work that way.
-            // We will trust the chatHistory dependency updates the callback.
-            
             const currentHistory = [...(chatHistory[activeCharId] || []), newMessage];
             
             const responseText = await generateChatResponse(
@@ -125,29 +119,29 @@ const App: React.FC = () => {
       {/* Colorful Overlay Gradient */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-oil-sunset/40 via-oil-sun/20 to-oil-water/40 mix-blend-overlay"></div>
       
-      {/* Title Section */}
-      <div className="relative z-10 text-center mb-12 p-6 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-xl mx-4 animate-fade-in-up">
-        <h1 className="text-5xl md:text-6xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+      {/* Title Section - Adjusted Margin */}
+      <div className="relative z-10 text-center mb-16 p-6 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-xl mx-4 animate-fade-in-up">
+        <h1 className="text-4xl md:text-5xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
           AI SoulMate
         </h1>
-        <p className="font-serif italic text-oil-base text-lg drop-shadow-md">
+        <p className="font-serif italic text-oil-base text-base drop-shadow-md">
           记忆的画布，绘着阳光与海。
         </p>
       </div>
 
-      {/* Main Actions - Smaller, more elegant sizing (approx 1/8 screen height implies ~12-15vh or 160px) */}
-      <div className="relative z-10 flex flex-row gap-8 md:gap-12 items-center justify-center w-full px-4">
+      {/* Main Actions - Resize to approx 1/8 screen height (~112px/28rem) */}
+      <div className="relative z-10 flex flex-row gap-12 items-center justify-center w-full px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
         
         {/* Phone Button */}
         <button 
           onClick={() => setMode('phone')}
-          className="group relative w-40 h-40 md:w-48 md:h-48 bg-white/80 backdrop-blur-md rounded-3xl border-2 border-white/60 shadow-[0_10px_30px_rgba(255,112,67,0.3)] hover:shadow-[0_20px_50px_rgba(255,112,67,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-3"
+          className="group relative w-28 h-28 md:w-32 md:h-32 bg-white/80 backdrop-blur-md rounded-2xl border-2 border-white/60 shadow-[0_10px_30px_rgba(255,112,67,0.3)] hover:shadow-[0_20px_50px_rgba(255,112,67,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-2"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-oil-sun/10 to-oil-sunset/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-4 rounded-2xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
-             <Smartphone size={32} />
+          <div className="absolute inset-0 bg-gradient-to-br from-oil-sun/10 to-oil-sunset/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-3 rounded-xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
+             <Smartphone size={28} />
           </div>
-          <span className="font-serif font-bold text-oil-contrast text-lg">联络</span>
+          <span className="font-serif font-bold text-oil-contrast text-sm md:text-base">联络</span>
         </button>
 
         {/* Activity Button */}
@@ -160,27 +154,27 @@ const App: React.FC = () => {
                   alert("请先创造一个角色。");
               }
           }}
-          className="group relative w-40 h-40 md:w-48 md:h-48 bg-white/80 backdrop-blur-md rounded-3xl border-2 border-white/60 shadow-[0_10px_30px_rgba(41,182,246,0.3)] hover:shadow-[0_20px_50px_rgba(41,182,246,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-3"
+          className="group relative w-28 h-28 md:w-32 md:h-32 bg-white/80 backdrop-blur-md rounded-2xl border-2 border-white/60 shadow-[0_10px_30px_rgba(41,182,246,0.3)] hover:shadow-[0_20px_50px_rgba(41,182,246,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-2"
         >
-           <div className="absolute inset-0 bg-gradient-to-br from-oil-water/10 to-oil-deepSea/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-4 rounded-2xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
-             <MapPin size={32} />
+           <div className="absolute inset-0 bg-gradient-to-br from-oil-water/10 to-oil-deepSea/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-3 rounded-xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
+             <MapPin size={28} />
           </div>
-          <span className="font-serif font-bold text-oil-contrast text-lg">探索</span>
+          <span className="font-serif font-bold text-oil-contrast text-sm md:text-base">探索</span>
         </button>
       </div>
 
       {/* Footer / Setup Actions */}
-      <div className="relative z-10 mt-16 flex flex-wrap justify-center gap-6">
+      <div className="relative z-10 mt-16 flex flex-wrap justify-center gap-6 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
         <button 
             onClick={() => setMode('setup')}
-            className="flex items-center gap-2 bg-oil-base/90 hover:bg-white text-oil-contrast px-6 py-2 rounded-full transition-all duration-300 font-serif font-bold border border-oil-sun shadow-lg text-sm"
+            className="flex items-center gap-2 bg-oil-base/90 hover:bg-white text-oil-contrast px-5 py-2 rounded-full transition-all duration-300 font-serif font-bold border border-oil-sun shadow-lg text-xs md:text-sm"
         >
-            <Palette size={16} className="text-oil-sunset" />
+            <Palette size={14} className="text-oil-sunset" />
             创造角色
         </button>
-        <div className="flex items-center gap-2 bg-oil-deepSea/80 backdrop-blur text-white px-6 py-2 rounded-full border border-oil-water/50 font-serif shadow-lg text-sm">
-            <Users size={16} />
+        <div className="flex items-center gap-2 bg-oil-deepSea/80 backdrop-blur text-white px-5 py-2 rounded-full border border-oil-water/50 font-serif shadow-lg text-xs md:text-sm">
+            <Users size={14} />
             {characters.length} 位角色
         </div>
       </div>

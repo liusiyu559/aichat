@@ -11,6 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <script>
+      // Polyfill process for browser environments to prevent crash on Vercel
+      if (typeof process === 'undefined') {
+        window.process = { env: {} };
+      }
+    </script>
+
+    <script>
       tailwind.config = {
         theme: {
           extend: {
@@ -42,8 +49,15 @@
               'sunset-gradient': 'linear-gradient(135deg, #ff9800 0%, #ff5722 50%, #1976d2 100%)',
               'water-texture': "url('https://www.transparenttextures.com/patterns/canvas-orange.png')",
             },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            },
             animation: {
               'spin-slow': 'spin 3s linear infinite',
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
             }
           }
         }
