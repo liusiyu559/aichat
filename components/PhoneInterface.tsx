@@ -65,7 +65,7 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
         <span className="font-serif font-bold text-lg text-white drop-shadow-md">微信</span>
         <div className="flex space-x-4 items-center">
             <button onClick={() => setView('moments')} className="text-white font-serif font-bold text-sm hover:text-oil-base transition drop-shadow">朋友圈</button>
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm hover:bg-white/30 transition">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm hover:bg-white/30 transition cursor-pointer">
                 <Plus size={20} className="text-white" />
             </div>
         </div>
@@ -103,14 +103,14 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
         
       {/* Bottom Nav */}
       <div className="h-16 bg-white border-t border-oil-sun/20 flex items-center justify-around pb-2 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-          <div className="flex flex-col items-center text-oil-meadow">
+          <div className="flex flex-col items-center text-oil-meadow cursor-pointer">
               <MessageCircle size={24} className="fill-current" />
               <span className="text-[10px] font-serif font-bold mt-1">微信</span>
           </div>
-          <div className="flex flex-col items-center text-gray-400 hover:text-oil-sunset transition">
+          <div className="flex flex-col items-center text-gray-400 hover:text-oil-sunset transition cursor-pointer">
               <span className="text-lg font-display font-bold">通讯录</span>
           </div>
-          <div className="flex flex-col items-center text-gray-400 hover:text-oil-sunset transition">
+          <div className="flex flex-col items-center text-gray-400 hover:text-oil-sunset transition cursor-pointer">
               <span className="text-lg font-display font-bold">我</span>
           </div>
       </div>
@@ -194,7 +194,7 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
             {/* Input Area */}
             <div className="bg-gray-100 border-t border-gray-200 p-2 pb-4 z-10">
                 <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-gray-600">
+                    <div className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-gray-600 cursor-pointer hover:bg-gray-200">
                         <Mic size={18} />
                     </div>
                     <input 
@@ -202,9 +202,9 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyDown={handleKeyPress}
-                        className="flex-1 bg-white h-9 rounded px-3 text-sm border-none outline-none"
+                        className="flex-1 bg-white h-9 rounded px-3 text-sm border-none outline-none focus:ring-1 focus:ring-green-500"
                     />
-                    <Smile size={26} className="text-gray-600" />
+                    <Smile size={26} className="text-gray-600 cursor-pointer" />
                     <button onClick={() => setShowPlusMenu(!showPlusMenu)}>
                          <Plus size={26} className="text-gray-600 p-0.5 border-2 border-gray-600 rounded-full" />
                     </button>
@@ -213,20 +213,20 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
                 {/* Plus Menu */}
                 {showPlusMenu && (
                     <div className="grid grid-cols-4 gap-4 p-4 mt-2 border-t border-gray-200">
-                        <div className="flex flex-col items-center gap-2 text-gray-500" onClick={() => {
+                        <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => {
                             onSendMessage('https://picsum.photos/seed/photo/300/400', 'image');
                             setShowPlusMenu(false);
                         }}>
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300">
+                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
                                 <ImageIcon size={24} />
                             </div>
                             <span className="text-xs">相册</span>
                         </div>
-                         <div className="flex flex-col items-center gap-2 text-gray-500" onClick={() => {
+                         <div className="flex flex-col items-center gap-2 text-gray-500 cursor-pointer" onClick={() => {
                             onSendMessage('', 'transfer');
                             setShowPlusMenu(false);
                         }}>
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300">
+                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-300 hover:bg-gray-50">
                                 <Wallet size={24} />
                             </div>
                             <span className="text-xs">转账</span>
@@ -261,7 +261,7 @@ const PhoneInterface: React.FC<PhoneInterfaceProps> = ({
                      <div className="absolute -bottom-6 right-4 flex items-end gap-3">
                          <span className="text-white font-bold drop-shadow-md mb-8 text-lg">我</span>
                          <div className="w-16 h-16 bg-gray-200 rounded-lg border-2 border-white overflow-hidden">
-                             <img src="https://picsum.photos/seed/me/200/200" alt="me" />
+                             <img src="https://picsum.photos/seed/me/200/200" alt="me" className="w-full h-full object-cover"/>
                          </div>
                      </div>
                 </div>

@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const handleSendMessage = useCallback(async (text: string, type: 'text' | 'image' | 'transfer' = 'text', fromMode: 'phone' | 'activity') => {
     if (!activeCharId) return;
 
+    // 1. Optimistic Update
     const newMessage: Message = {
       id: Date.now().toString(),
       sender: 'user',
@@ -41,14 +42,25 @@ const App: React.FC = () => {
       imageUrl: type === 'image' ? text : undefined 
     };
 
-    setChatHistory(prev => ({
-      ...prev,
-      [activeCharId]: [...(prev[activeCharId] || []), newMessage]
-    }));
+    setChatHistory(prev => {
+        const charHistory = prev[activeCharId] || [];
+        return {
+            ...prev,
+            [activeCharId]: [...charHistory, newMessage]
+        };
+    });
 
+    // 2. API Call
     const character = characters.find(c => c.id === activeCharId);
     if (character) {
+            // Retrieve latest history from state is tricky in callbacks, so we reconstruct context
+            // In a real app, we might use a ref for history or a reducer. 
+            // Here we just pass the NEW message + existing history (from the closure time, risking staleness if rapid fire, but acceptable for MVP)
+            // To fix staleness, we ideally need to read the state inside the async operation, but React state doesn't work that way.
+            // We will trust the chatHistory dependency updates the callback.
+            
             const currentHistory = [...(chatHistory[activeCharId] || []), newMessage];
+            
             const responseText = await generateChatResponse(
                 character,
                 currentHistory,
@@ -64,10 +76,13 @@ const App: React.FC = () => {
                 timestamp: Date.now()
             };
 
-            setChatHistory(prev => ({
-                ...prev,
-                [activeCharId]: [...(prev[activeCharId] || []), aiMessage]
-            }));
+            setChatHistory(prev => {
+                const charHistory = prev[activeCharId] || [];
+                return {
+                    ...prev,
+                    [activeCharId]: [...charHistory, aiMessage]
+                };
+            });
     }
   }, [activeCharId, characters, chatHistory]);
 
@@ -79,6 +94,7 @@ const App: React.FC = () => {
   };
 
   const handleRefreshMoments = async () => {
+    if (characters.length === 0) return;
     const randomChar = characters[Math.floor(Math.random() * characters.length)];
     const newMoment = await generateMoment(randomChar);
     setMoments(prev => [newMoment, ...prev]);
@@ -103,40 +119,38 @@ const App: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen relative overflow-hidden">
       {/* Vibrant Background */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop')` }} // Sunny beach/sunset vibe
+        className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-1000"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop')` }}
       />
       {/* Colorful Overlay Gradient */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-oil-sunset/40 via-oil-sun/20 to-oil-water/40 mix-blend-overlay"></div>
       
-      <div className="relative z-10 text-center mb-10 p-8 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-2xl mx-4">
-        <h1 className="text-6xl md:text-7xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-          AI 伴侣 OS
+      {/* Title Section */}
+      <div className="relative z-10 text-center mb-12 p-6 bg-white/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-2xl max-w-xl mx-4 animate-fade-in-up">
+        <h1 className="text-5xl md:text-6xl font-display font-bold mb-2 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+          AI SoulMate
         </h1>
-        <p className="font-serif italic text-oil-base text-xl drop-shadow-md">
+        <p className="font-serif italic text-oil-base text-lg drop-shadow-md">
           记忆的画布，绘着阳光与海。
         </p>
       </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
-        {/* Phone Button - Warm/Sunset Theme */}
+      {/* Main Actions - Smaller, more elegant sizing (approx 1/8 screen height implies ~12-15vh or 160px) */}
+      <div className="relative z-10 flex flex-row gap-8 md:gap-12 items-center justify-center w-full px-4">
+        
+        {/* Phone Button */}
         <button 
           onClick={() => setMode('phone')}
-          className="group relative overflow-hidden rounded-2xl border-2 border-white/50 hover:border-oil-sun transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(255,152,0,0.6)] bg-white/80 backdrop-blur-sm"
+          className="group relative w-40 h-40 md:w-48 md:h-48 bg-white/80 backdrop-blur-md rounded-3xl border-2 border-white/60 shadow-[0_10px_30px_rgba(255,112,67,0.3)] hover:shadow-[0_20px_50px_rgba(255,112,67,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-3"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-oil-sun/20 to-oil-sunset/20 opacity-50 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative p-10 flex flex-col items-center">
-            <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
-              <Smartphone size={48} />
-            </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">联络</h2>
-            <p className="font-body text-oil-wood/80 text-center italic">
-              在金色的阳光下畅聊。
-            </p>
+          <div className="absolute inset-0 bg-gradient-to-br from-oil-sun/10 to-oil-sunset/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="bg-gradient-to-br from-oil-sunset to-oil-sun p-4 rounded-2xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
+             <Smartphone size={32} />
           </div>
+          <span className="font-serif font-bold text-oil-contrast text-lg">联络</span>
         </button>
 
-        {/* Activity Button - Cool/Water Theme */}
+        {/* Activity Button */}
         <button 
           onClick={() => {
               if (characters.length > 0) {
@@ -146,31 +160,27 @@ const App: React.FC = () => {
                   alert("请先创造一个角色。");
               }
           }}
-          className="group relative overflow-hidden rounded-2xl border-2 border-white/50 hover:border-oil-water transition-all duration-500 shadow-lg hover:shadow-[0_0_30px_rgba(3,169,244,0.6)] bg-white/80 backdrop-blur-sm"
+          className="group relative w-40 h-40 md:w-48 md:h-48 bg-white/80 backdrop-blur-md rounded-3xl border-2 border-white/60 shadow-[0_10px_30px_rgba(41,182,246,0.3)] hover:shadow-[0_20px_50px_rgba(41,182,246,0.5)] hover:-translate-y-2 transition-all duration-300 flex flex-col items-center justify-center gap-3"
         >
-           <div className="absolute inset-0 bg-gradient-to-br from-oil-water/20 to-oil-deepSea/20 opacity-50 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative p-10 flex flex-col items-center">
-            <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-5 rounded-full mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500 text-white">
-              <MapPin size={48} />
-            </div>
-            <h2 className="text-3xl font-serif font-bold text-oil-contrast mb-2">探索</h2>
-            <p className="font-body text-oil-wood/80 text-center italic">
-              漫步在蔚蓝海岸。
-            </p>
+           <div className="absolute inset-0 bg-gradient-to-br from-oil-water/10 to-oil-deepSea/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="bg-gradient-to-br from-oil-water to-oil-deepSea p-4 rounded-2xl text-white shadow-md group-hover:scale-110 transition-transform duration-300">
+             <MapPin size={32} />
           </div>
+          <span className="font-serif font-bold text-oil-contrast text-lg">探索</span>
         </button>
       </div>
 
-      <div className="relative z-10 mt-16 flex gap-6">
+      {/* Footer / Setup Actions */}
+      <div className="relative z-10 mt-16 flex flex-wrap justify-center gap-6">
         <button 
             onClick={() => setMode('setup')}
-            className="flex items-center gap-3 bg-oil-base text-oil-contrast px-8 py-3 rounded-full hover:bg-white transition-colors duration-300 font-serif font-bold border border-oil-sun shadow-xl"
+            className="flex items-center gap-2 bg-oil-base/90 hover:bg-white text-oil-contrast px-6 py-2 rounded-full transition-all duration-300 font-serif font-bold border border-oil-sun shadow-lg text-sm"
         >
-            <Palette size={20} className="text-oil-sunset" />
+            <Palette size={16} className="text-oil-sunset" />
             创造角色
         </button>
-        <div className="flex items-center gap-3 bg-oil-deepSea/80 backdrop-blur text-white px-8 py-3 rounded-full border border-oil-water/50 font-serif shadow-lg">
-            <Users size={20} />
+        <div className="flex items-center gap-2 bg-oil-deepSea/80 backdrop-blur text-white px-6 py-2 rounded-full border border-oil-water/50 font-serif shadow-lg text-sm">
+            <Users size={16} />
             {characters.length} 位角色
         </div>
       </div>
@@ -178,7 +188,7 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-oil-base canvas-bg">
+    <div className="h-screen w-screen overflow-hidden bg-oil-base canvas-bg font-sans">
       {mode === 'dashboard' && renderDashboard()}
       
       {mode === 'setup' && (
@@ -189,9 +199,9 @@ const App: React.FC = () => {
       )}
 
       {mode === 'phone' && (
-        <div className="flex items-center justify-center h-full p-4 bg-oil-contrast/40 backdrop-blur-sm">
+        <div className="flex items-center justify-center h-full p-0 md:p-4 bg-oil-contrast/40 backdrop-blur-sm">
              {/* Phone Container - Vibrant Gold/Copper Frame */}
-            <div className="h-full w-full max-w-[420px] max-h-[850px] bg-wx-bg rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative border-[6px] border-oil-wood overflow-hidden ring-4 ring-oil-sun/60">
+            <div className="h-full w-full md:max-w-[420px] md:max-h-[850px] bg-wx-bg md:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.4)] relative md:border-[6px] md:border-oil-wood overflow-hidden ring-0 md:ring-4 ring-oil-sun/60">
                 <PhoneInterface 
                     characters={characters}
                     activeCharacterId={activeCharId}
