@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Smartphone, MapPin, Settings, PlusCircle, Users, Palette } from 'lucide-react';
+import { Smartphone, MapPin, Users, Palette } from 'lucide-react';
 import { AppMode, Character, Message, Moment, INITIAL_CHARACTERS } from './types';
 import PhoneInterface from './components/PhoneInterface';
 import ActivityInterface from './components/ActivityInterface';

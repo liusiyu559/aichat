@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Send, Feather } from 'lucide-react';
+import { ArrowLeft, Feather } from 'lucide-react';
 import { Character, Message } from '../types';
 import { getBackgroundUrl } from '../services/geminiService';
 

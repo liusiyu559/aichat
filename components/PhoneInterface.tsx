@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Plus, Smile, Image as ImageIcon, Wallet, Phone, MoreHorizontal, Heart, MessageCircle, ChevronLeft } from 'lucide-react';
+import { Mic, Plus, Smile, Image as ImageIcon, Wallet, MoreHorizontal, Heart, MessageCircle, ChevronLeft } from 'lucide-react';
 import { Character, Message, Moment, PhoneView } from '../types';
 
 interface PhoneInterfaceProps {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Character } from '../types';
-import { Save, User, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 
 interface SetupInterfaceProps {
   onSave: (char: Character) => void;
